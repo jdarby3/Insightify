@@ -1,20 +1,20 @@
 body {
-    background: black;
-    color: white;
+    background: rgb(206, 197, 197);
+    color: rgb(57, 95, 47);
 }
 h1 {
-    font-size: 3rem;
+    font-size: 2rem;
     text-align: center;
 }
 
 .possibilities {
     margin: 40px;
-    font-size: 3rem;
+    font-size: 2rem;
     text-align: right;
 }
 
 .question {
-    font-size: 3rem;
+    font-size: 2rem;
     text-align: center;
 }
 
