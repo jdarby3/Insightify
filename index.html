@@ -4,26 +4,35 @@
         <link rel="stylesheet" href="style.css">
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
+        <title>Image Converter</title>
     </head>
+
+   <header>
+        <h1>Image Converter</h1>
+        <h3>Easily change the file type of your images!</h3>
+   </header>
+
     <body>
-        <h1>Welcome to my first web app</h1>
+        <h3>Upload your images: (File, folder or multiple of either)</h3>
+        <h6>Supported formats: JPG, PNG, SVG, ICO, PDF, HEIC</h6>
+        <input type="file" placeholder="Upload Images" id="file-input" multiple>
 
-        <!-- Hello whoever is reading my code-->
+        <h3>Select desired image type:</h3>
 
-        <h3 class="question">
-            The question is not will we use AI it is... 
-            <strong><em>How will we use AI?</em></strong>
-        </h3>
+        <select id="image-type", name="image-type">
+            <option value="jpg">.JPG</option>
+            <option value="png">.PNG</option>
+            <option value="svg">.SVG</option>
+            <option value="ico">.ICO</option>
+            <option value="pdf">.PDF</option>
+            <option value="heic">.HEIC</option>
+        </select>
 
-        <ul>
-            <li>We can create a chat bot</li>
-            <li>We could make a document analyzer</li>
-            <li>We could make a logo or profile picture generator</li>
-            <li>We can create a chat bot</li>
-        </ul>
-
-        <h3 class="possibilities">The posibilities are endless...</h3>
+        <button>Convert</button>
         
     </body>
+    <footer>
+        <p>© 2025 James Darby. All rights reserved.</p>
+    </footer>
+
 </html>

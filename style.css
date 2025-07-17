@@ -1,25 +1,38 @@
+header {
+    background-color: rgb(57, 95, 47);
+    color: white;
+    width: 100%;
+    padding : 10px;
+}
+
+
 body {
     background: rgb(206, 197, 197);
     color: rgb(57, 95, 47);
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
 }
-h1 {
-    font-size: 2rem;
+
+body h3{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+body h6{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
     text-align: center;
+    padding: 10px;
+    background-color: rgb(57, 95, 47);
+    color: white;
 }
 
-.possibilities {
-    margin: 40px;
-    font-size: 2rem;
-    text-align: right;
-}
-
-.question {
-    font-size: 2rem;
-    text-align: center;
-}
-
-p {
-    color: #555;
-    max-width: 600px;
-    margin: auto;
-}
