@@ -1,7 +1,5 @@
-# Insightify
+# Image converter
+
 my first web app
 
-to do:
-  finish front mvp, text input box, some buttons
-  maybe some js
-  begin backend
+converts images, upload files or folders
