@@ -1,38 +1,330 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <link rel="stylesheet" href="style.css">
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Image Converter</title>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Converter</title>
+    <link rel="stylesheet" href="style.css">
+</head>
 
-   <header>
+<body>
+    <header>
         <h1>Image Converter</h1>
-        <h3>Easily change the file type of your images!</h3>
-   </header>
+        <h3>Convert images to your desired format</h3>
+    </header>
 
-    <body>
-        <h3>Upload your images: (File, folder or multiple of either)</h3>
-        <h6>Supported formats: JPG, PNG, SVG, ICO, PDF, HEIC</h6>
-        <input type="file" placeholder="Upload Images" id="file-input" multiple>
+    <main class="main-container">
+        <!-- Step 1: Upload -->
+        <div class="step-container">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>Upload Images</h3>
+                <div class="upload-buttons">
+                    <button id="file-upload-btn" class="upload-btn">
+                        <span class="icon">📁</span>
+                        <span class="text">Select Files</span>
+                        <span class="subtext">Individual or multiple images</span>
+                    </button>
+                    <input type="file" id="file-input" multiple accept="image/*" hidden>
+                    
+                    <button id="folder-upload-btn" class="upload-btn">
+                        <span class="icon">📂</span>
+                        <span class="text">Select Folder</span>
+                        <span class="subtext">Entire folder of images</span>
+                    </button>
+                    <input type="file" id="folder-input" webkitdirectory directory hidden>
+                </div>
 
-        <h3>Select desired image type:</h3>
+                <div id="file-display" class="file-display" hidden>
+                    <h4>Selected Images</h4>
+                    <div id="file-list" class="file-list"></div>
+                    <button id="clear-btn" class="clear-btn">Clear Selection</button>
+                </div>
+            </div>
+        </div>
 
-        <select id="image-type", name="image-type">
-            <option value="jpg">.JPG</option>
-            <option value="png">.PNG</option>
-            <option value="svg">.SVG</option>
-            <option value="ico">.ICO</option>
-            <option value="pdf">.PDF</option>
-            <option value="heic">.HEIC</option>
-        </select>
+        <!-- Step 2: Convert -->
+        <div class="step-container">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>Convert Format</h3>
+                <p class="format-info">All images will be converted to the same format</p>
+                
+                <div class="format-selector">
+                    <select id="image-type" class="format-select">
+                        <option value="jpeg">JPG (JPEG)</option>
+                        <option value="png">PNG</option>
+                        <option value="webp">WebP</option>
+                        <option value="gif">GIF</option>
+                        <option value="bmp">BMP</option>
+                        <option value="tiff">TIFF</option>
+                    </select>
+                </div>
 
-        <button>Convert</button>
-        
-    </body>
+                <button id="convert-btn" class="convert-btn" disabled>Convert Images</button>
+                <div id="status" class="status" hidden></div>
+            </div>
+        </div>
+
+        <!-- Step 3: Download -->
+        <div class="step-container">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>Download Results</h3>
+                <p class="download-info">Get your converted images</p>
+                
+                <div id="download-section" class="download-section" hidden>
+                    <button id="download-btn" class="download-btn">
+                        📥 Download All Converted Images
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
     <footer>
-        <p>© 2025 James Darby. All rights reserved.</p>
+        <p>© 2025 James Darby. Personal project for educational purposes.</p>
     </footer>
 
+    <script>
+        // State
+        let convertedFiles = [];
+        let selectedFiles = [];
+
+        // DOM Elements
+        const elements = {
+            fileInput: document.getElementById('file-input'),
+            folderInput: document.getElementById('folder-input'),
+            fileDisplay: document.getElementById('file-display'),
+            fileList: document.getElementById('file-list'),
+            convertBtn: document.getElementById('convert-btn'),
+            status: document.getElementById('status'),
+            downloadSection: document.getElementById('download-section')
+        };
+
+        // Event Listeners
+        document.getElementById('file-upload-btn').onclick = () => elements.fileInput.click();
+        document.getElementById('folder-upload-btn').onclick = () => elements.folderInput.click();
+        document.getElementById('clear-btn').onclick = clearSelection;
+        document.getElementById('convert-btn').onclick = convertImages;
+        document.getElementById('download-btn').onclick = downloadAll;
+
+        elements.fileInput.onchange = handleFileSelection;
+        elements.folderInput.onchange = handleFileSelection;
+
+        // Drag and Drop
+        const main = document.querySelector('main');
+        main.ondragover = (e) => { e.preventDefault(); main.style.border = '2px dashed rgb(57, 95, 47)'; };
+        main.ondragleave = (e) => { e.preventDefault(); main.style.border = 'none'; };
+        main.ondrop = handleDrop;
+
+        // Functions
+        function handleFileSelection(e) {
+            const files = Array.from(e.target.files);
+            selectedFiles = files.filter(isImageFile);
+            updateUI();
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            main.style.border = 'none';
+            const files = Array.from(e.dataTransfer.files);
+            selectedFiles = files.filter(isImageFile);
+            updateUI();
+        }
+
+        function isImageFile(file) {
+            return file.type.startsWith('image/') || 
+                   /\.(jpg|jpeg|png|gif|bmp|tiff|tif|webp|svg|ico)$/i.test(file.name);
+        }
+
+        function clearSelection() {
+            selectedFiles = [];
+            elements.fileInput.value = '';
+            elements.folderInput.value = '';
+            updateUI();
+        }
+
+        function updateUI() {
+            updateFileDisplay();
+            elements.convertBtn.disabled = selectedFiles.length === 0;
+        }
+
+        function updateFileDisplay() {
+            if (selectedFiles.length === 0) {
+                elements.fileDisplay.hidden = true;
+                return;
+            }
+            
+            elements.fileDisplay.hidden = false;
+            elements.fileList.innerHTML = '';
+            
+            const hasFolders = selectedFiles.some(file => file.webkitRelativePath?.includes('/'));
+            
+            if (hasFolders) {
+                displayFolderStructure();
+            } else {
+                displayFileList();
+            }
+        }
+
+        function displayFolderStructure() {
+            const folderGroups = {};
+            selectedFiles.forEach(file => {
+                const folder = file.webkitRelativePath.split('/')[0];
+                if (!folderGroups[folder]) folderGroups[folder] = [];
+                folderGroups[folder].push(file);
+            });
+            
+            Object.entries(folderGroups).forEach(([folder, files]) => {
+                const folderDiv = createElement('div', 'folder-group');
+                folderDiv.innerHTML = `<div class="folder-name">📁 ${folder}</div>`;
+                
+                const filesDiv = createElement('div', 'folder-files');
+                files.forEach(file => {
+                    filesDiv.appendChild(createFileItem(file));
+                });
+                
+                folderDiv.appendChild(filesDiv);
+                elements.fileList.appendChild(folderDiv);
+            });
+        }
+
+        function displayFileList() {
+            selectedFiles.forEach(file => {
+                elements.fileList.appendChild(createFileItem(file));
+            });
+        }
+
+        function createFileItem(file) {
+            const div = createElement('div', 'file-item');
+            div.textContent = `📄 ${file.name}`;
+            return div;
+        }
+
+        function createElement(tag, className) {
+            const element = document.createElement(tag);
+            element.className = className;
+            return element;
+        }
+
+        async function convertImages() {
+            if (selectedFiles.length === 0) {
+                alert('Please select at least one image file.');
+                return;
+            }
+
+            const format = document.getElementById('image-type').value;
+            showStatus('Converting images... Please wait.');
+            elements.convertBtn.disabled = true;
+            elements.downloadSection.hidden = true;
+            convertedFiles = [];
+
+            try {
+                const promises = selectedFiles.map(file => convertFile(file, format));
+                await Promise.all(promises);
+                
+                showStatus(`✓ Successfully converted ${convertedFiles.length} images to ${format.toUpperCase()}`);
+                elements.downloadSection.hidden = false;
+            } catch (error) {
+                showStatus('✗ Error: ' + error.message);
+            } finally {
+                elements.convertBtn.disabled = false;
+            }
+        }
+
+        function convertFile(file, format) {
+            return new Promise((resolve) => {
+                if (file.name.toLowerCase().endsWith('.svg')) {
+                    convertSVG(file, format, resolve);
+                    return;
+                }
+
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    
+                    if (format === 'jpeg') {
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    }
+                    
+                    ctx.drawImage(img, 0, 0);
+                    
+                    const mimeType = format === 'jpeg' ? 'image/jpeg' : `image/${format}`;
+                    canvas.toBlob((blob) => {
+                        const fileName = file.name.replace(/\.[^/.]+$/, '') + '.' + format;
+                        convertedFiles.push({ name: fileName, blob });
+                        resolve();
+                    }, mimeType, 0.9);
+                };
+
+                img.onerror = () => {
+                    console.warn(`Failed to convert: ${file.name}`);
+                    resolve();
+                };
+                
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        function convertSVG(file, format, resolve) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    canvas.width = Math.min(img.width, 2048);
+                    canvas.height = Math.min(img.height, 2048);
+                    
+                    if (format === 'jpeg') {
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    }
+                    
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    const mimeType = format === 'jpeg' ? 'image/jpeg' : `image/${format}`;
+                    canvas.toBlob((blob) => {
+                        const fileName = file.name.replace(/\.svg$/i, '') + '.' + format;
+                        convertedFiles.push({ name: fileName, blob });
+                        resolve();
+                    }, mimeType, 0.9);
+                };
+                
+                img.onerror = () => {
+                    console.warn(`Failed to convert SVG: ${file.name}`);
+                    resolve();
+                };
+                
+                img.src = 'data:image/svg+xml;base64,' + btoa(e.target.result);
+            };
+            reader.readAsText(file);
+        }
+
+        function downloadAll() {
+            if (convertedFiles.length === 0) return;
+
+            convertedFiles.forEach((file, index) => {
+                setTimeout(() => {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(file.blob);
+                    link.download = file.name;
+                    link.click();
+                }, index * 100);
+            });
+        }
+
+        function showStatus(message) {
+            elements.status.textContent = message;
+            elements.status.hidden = false;
+        }
+    </script>
+</body>
 </html>
